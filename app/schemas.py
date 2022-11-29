@@ -1,3 +1,6 @@
+# pylint: disable=no-self-argument
+# pylint: disable=no-name-in-module
+
 from pydantic import BaseModel, validator, Field
 
 from . import models
@@ -21,7 +24,7 @@ class Product(BaseModel):
     value: str
     categories: list[object]
 
-    @validator('categories', each_item=True)
+    @validator("categories", each_item=True)
     def retrieve_all_categories(cls, v: models.ProductCategory):
         return v.categories.value
 
@@ -33,7 +36,7 @@ class Category(BaseModel):
     value: str
     products: list[object]
 
-    @validator('products', each_item=True)
+    @validator("products", each_item=True)
     def retrieve_all_products(cls, v: models.ProductCategory):
         return v.products.value
 
@@ -45,11 +48,11 @@ class ProductCategory(BaseModel):
     products: object = Field(..., alias="product")
     categories: object = Field(..., alias="category")
 
-    @validator('products')
+    @validator("products")
     def retrieve_product_value(cls, v: models.Product):
         return v.value
 
-    @validator('categories')
+    @validator("categories")
     def retrieve_category_value(cls, v: models.Category):
         return v.value
 

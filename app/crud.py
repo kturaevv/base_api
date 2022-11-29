@@ -7,21 +7,28 @@ from .manager import ConnManager
 
 
 class CRUD:
-    """ Convenience class, all methods bundled toghether for simplified unit tests and API usage."""
+    """Convenience class, all methods bundled toghether for simplified unit tests and API usage."""
 
     def __init__(self) -> None:
         self.session = ConnManager().session
 
-    def _fake_populate_products_categories(
-            self,
-            n_products: int = 30,
-            categories: list[str] = ['Category_A', 'Category_B', 'Category_C', 'Category_D']
+    def _fake_populate_products_categories(  # pylint: disable=dangerous-default-value
+        self,
+        n_products: int = 30,
+        categories: list[str] = [
+            "Category_A",
+            "Category_B",
+            "Category_C",
+            "Category_D",
+        ],
     ) -> None:
         from faker import Faker
 
         faker = Faker()
 
-        products = [models.Product(value=faker.catch_phrase()) for i in range(n_products)]
+        products = [
+            models.Product(value=faker.catch_phrase()) for i in range(n_products)
+        ]
         categories = [models.Category(value=category) for category in categories]
 
         self.session.bulk_save_objects(products + categories)  # deprecated
@@ -35,13 +42,12 @@ class CRUD:
 
         m2m = []
         # Assign category to each product, except for last 30%
-        for product in products[2:-len(products) * 3 // 10]:
+        for product in products[2 : -len(products) * 3 // 10]:
             # Each product shall have at least 1 and at most 3 categories
             for category in set(random.choices(categories, k=len(categories))):
                 m2m.append(
                     models.ProductCategory(
-                        product_pk=product.id,
-                        category_pk=category.id
+                        product_pk=product.id, category_pk=category.id
                     )
                 )
 

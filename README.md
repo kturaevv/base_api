@@ -3,9 +3,7 @@
 
  Project can be started with docker compose:
 ```sh
-# Copy env variables for compose
-cat .env.compose > .env
-docker compose up -d --build
+make up
 ```
 
  Project can be started locally with postgres in separate container:
@@ -14,7 +12,7 @@ docker compose up -d --build
 cat .env.local > .env
 
 # Start DB container
-docker compose -f docker-compose.local.yml up -d 
+make local
 
 # Init project env
 # With conda

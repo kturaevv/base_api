@@ -1,32 +1,50 @@
-FROM python:3.11.0-alpine3.16 as builder
-
-WORKDIR /build
-
-# install dependencies
-RUN apk update
-RUN apk add --no-cache gcc musl-dev postgresql-dev libffi-dev zlib-dev linux-headers g++ libev-dev libjpeg-turbo-dev
-
-RUN pip3 install -U pip
-
-COPY ./requirements.txt ./
-RUN pip3 wheel \
-		--no-cache-dir \
-		--wheel-dir wheels \
-		-r requirements.txt 
-
-FROM python:3.11.0-alpine3.16
+FROM python:3.11.0-alpine3.16 as base
 
 WORKDIR /usr/src/app
 
-COPY --from=builder /build/wheels /wheels
+ENV \
+# Turns off writing .pyc files
+	PYTHONDONTWRITEBYTECODE=1 \
+# Seems to speed things up
+	PYTHONUNBUFFERED=1 \
+# Default VENV usage
+	PATH="/venv/bin:${PATH}" \
+	VIRTUAL_ENV="/venv"
 
-RUN apk update
-RUN apk add --no-cache libpq zlib curl libstdc++ libev libffi libjpeg-turbo
-RUN apk upgrade
+### ---
+FROM base as builder
 
-RUN pip install -U pip
-RUN pip install --no-cache /wheels/*
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
-COPY . /usr/src/app/
+# Install dev dependencies
+RUN apk update && \
+	apk add --no-cache gcc libffi-dev musl-dev postgresql-dev
+
+# Install poetry
+RUN pip3 install -U pip && \
+	pip3 install setuptools && \
+	pip3 install poetry
+
+# Create virtual env to store dependencies
+RUN python3 -m venv /venv 
+
+# Install root project
+COPY pyproject.toml poetry.lock ./
+RUN . /venv/bin/activate && poetry install --no-root --only main
+
+# Build wheels
+COPY . .
+RUN . /venv/bin/activate && poetry build && pip install dist/*.whl
+
+
+### ---
+FROM base as final
+
+RUN apk add --no-cache libffi libpq
+
+COPY --from=builder /venv /venv
+COPY --from=builder /usr/src/app .
 
 EXPOSE 8000

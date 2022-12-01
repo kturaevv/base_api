@@ -7,7 +7,7 @@ services:
             context: .
             dockerfile: Dockerfile
         container_name: app
-        command: [ "./entrypoint-local.sh" ]
+        command: [ "./docker-entrypoint.sh" ]
         networks:
             - app-net
         depends_on:

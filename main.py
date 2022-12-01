@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 
 from app import schemas
 from app.crud import CRUD
@@ -21,16 +21,16 @@ def shutdown():
     ConnManager().drop_tables()
 
 
-@app.get("/products", response_model=list[schemas.Product])
+@app.get("/products",  status_code=status.HTTP_200_OK, response_model=list[schemas.Product])
 def get_products_and_its_categories():
     return crud.get_products()
 
 
-@app.get("/categories", response_model=list[schemas.Category])
+@app.get("/categories", status_code=status.HTTP_200_OK, response_model=list[schemas.Category])
 def get_categories_and_its_products():
     return crud.get_categories()
 
 
-@app.get("/both", response_model=list[schemas.ProductCategory])
+@app.get("/both", status_code=status.HTTP_200_OK, response_model=list[schemas.ProductCategory])
 def get_product_category_pairs():
     return crud.get_products_and_categories()

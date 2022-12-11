@@ -10,15 +10,12 @@ crud = CRUD()
 
 @app.on_event("startup")
 def startup():
-    ConnManager().drop_tables_if_exist()
-    ConnManager().define_tables()
-    crud._fake_populate_products_categories()  # pylint: disable=protected-access
-    crud._fake_populate_junction_table()  # pylint: disable=protected-access
+    ...
 
 
 @app.on_event("shutdown")
 def shutdown():
-    ConnManager().drop_tables()
+    ...
 
 
 @app.get("/products",  status_code=status.HTTP_200_OK, response_model=list[schemas.Product])

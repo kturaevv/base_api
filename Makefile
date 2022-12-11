@@ -14,3 +14,15 @@ lint:
 format:
 	#format code
 	black *.py app/*.py
+
+migrate:
+	alembic revision --autogenerate -m "$(name)"
+
+migrations:
+	alembic upgrade heads
+
+fakedata:
+	python -c "from app.crud import CRUD; \
+				CRUD()._fake_populate_products_categories();\
+				CRUD()._fake_populate_junction_table();\
+				"

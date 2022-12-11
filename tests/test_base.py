@@ -15,7 +15,6 @@ def queries() -> CRUD:
     ConnManager().drop_tables_if_exist()
     ConnManager().define_tables()
     yield CRUD()
-    ConnManager().drop_tables()
 
 
 def test_crud_populate(queries: CRUD):

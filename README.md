@@ -29,3 +29,6 @@ uvicorn main:app --reload
 
 # Test with 
 pytest
+
+# Populate with
+make fakedata
